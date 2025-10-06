@@ -1,5 +1,5 @@
 import { Controller, Post } from "@nestjs/common";
-import { AuthService } from "./auth.service";
+import { AuthService } from "auth/auth.service";
 import { ApiOperation } from "@nestjs/swagger";
 
 @Controller()
