@@ -9,7 +9,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '15m' },
+      signOptions: { expiresIn: '1h' },
     }),
     PrismaModule,
     UsersModule,

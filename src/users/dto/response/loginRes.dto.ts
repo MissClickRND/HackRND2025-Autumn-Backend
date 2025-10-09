@@ -1,4 +1,4 @@
 export class LoginResDTO{
-    id: string
+    id: number
     email: string
 }
