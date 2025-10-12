@@ -8,7 +8,9 @@ import { RegisterDtoRequest } from 'src/auth/dto/request/register.dto';
 import { checkEmailReqDTO } from './dto/request/checkEmailReq.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { LoginDtoRequest } from 'src/auth/dto/request/loginRes.dto';
+import { LoginDtoRequest } from 'src/auth/dto/request/loginReq.dto';
+import { LoginResDTO } from './dto/response/loginRes.dto';
+import { ValidUserDTO } from 'src/auth/dto/request/Validuser.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +26,18 @@ export class UsersService {
     });
   }
 
-  async validateUser(dto: LoginDtoRequest) {
+  async GetById(id: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: id },
+    });
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    const { password, ...result } = user;
+    return result
+  }
+
+  async validateUser(dto: ValidUserDTO) {
     const user = await this.GetByEmail({ email: dto.email });
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
@@ -40,15 +53,19 @@ export class UsersService {
   async create(dto: RegisterDtoRequest) {
     const valid = await this.GetByEmail({ email: dto.email });
     if (valid) {
-      throw new ConflictException("Пользователь с таким email уже существует")
-    } 
-    
+      throw new ConflictException('Пользователь с таким email уже существует');
+    }
+
     const hashpass = await this.hashpassword(dto.password);
 
     const user = await this.prismaService.user.create({
       data: { email: dto.email, password: hashpass },
     });
 
-    return { id: user.id, email: dto.email};
+    return { id: user.id, email: dto.email };
   }
+
+ async logout(){
+  
+ }
 }

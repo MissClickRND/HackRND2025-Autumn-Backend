@@ -17,9 +17,15 @@ model User {
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
+  system    System
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   expiresAt DateTime
   revoked   Boolean  @default(false)
+}
+
+enum System {
+  Mobile
+  Web
 }
