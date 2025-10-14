@@ -11,8 +11,4 @@ export class RegisterDtoRequest {
   @MinLength(8)
   @IsString()
   password: string;
-
-  @ApiProperty()
-  @IsString()
-  system: $Enums.System;
 }
