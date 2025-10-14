@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Get,
   Headers,
@@ -29,6 +30,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const user = await this.authService.register(dto);
+
+    if (!system) {
+      throw new ConflictException('Система не указана');
+    }
 
     const { accessToken, refreshToken } = await this.authService.login({
       id: user.id,
@@ -60,6 +65,10 @@ export class AuthController {
     @Headers('x-client-type') system: System,
     @Res({ passthrough: true }) res: Response,
   ) {
+    if (!system) {
+      throw new ConflictException('Система не указана');
+    }
+
     const { accessToken, refreshToken } = await this.authService.login({
       id: req.user.id,
       email: req.user.email,
@@ -112,11 +121,12 @@ export class AuthController {
 
     await this.authService.logoutThis(refreshToken);
 
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+    });
+
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
     });
 
     return 'Пользователь вышел из аккаунта';
