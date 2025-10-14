@@ -13,7 +13,7 @@ import { AuthService } from './auth.service';
 import { RegisterDtoRequest } from './dto/request/register.dto';
 import { AuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
-import { JwtAuthGuard } from 'src/jwt/jwt-auth.guard';
+import { JwtCookieAuthGuard } from 'src/jwt/jwt-auth.guard';
 import { LoginDtoRequest } from './dto/request/loginReq.dto';
 import { System } from '@prisma/client';
 
@@ -36,13 +36,19 @@ export class AuthController {
       system: system,
     });
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 30 * 1000,
+    });
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { user: user, token: accessToken };
+    return user;
   }
 
   @ApiOperation({ summary: 'Авторизация' })
@@ -60,13 +66,19 @@ export class AuthController {
       system: system,
     });
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 30 * 1000,
+    });
+
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return { token: accessToken };
+    return { message: 'Вход выполнен' };
   }
 
   @Get('refresh')
@@ -77,28 +89,28 @@ export class AuthController {
     const { accessToken, refreshToken: newRefreshToken } =
       await this.authService.refresh(refreshToken);
 
-    res.cookie('refreshToken', newRefreshToken, {
+    res.cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/',
+      maxAge: 30 * 1000,
     });
 
-    return { token: accessToken };
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return { message: 'Успешно обновлен' };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieAuthGuard)
   @Post('logout')
   @ApiOperation({ summary: 'Выйти из аккаунта' })
-  async logout(
-    @Request() req,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@Request() req, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies.refreshToken;
 
-    await this.authService.logoutThis(refreshToken)
-
+    await this.authService.logoutThis(refreshToken);
 
     res.clearCookie('refreshToken', {
       httpOnly: true,
@@ -107,11 +119,11 @@ export class AuthController {
       path: '/',
     });
 
-    return "Пользователь вышел из аккаунта"
+    return 'Пользователь вышел из аккаунта';
   }
 
   @ApiOperation({ summary: 'Проверка на запись токена' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieAuthGuard)
   @Get('test')
   async test(@Request() req) {
     return req.user;
