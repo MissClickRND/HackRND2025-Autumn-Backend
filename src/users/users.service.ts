@@ -8,10 +8,9 @@ import { RegisterDtoRequest } from 'src/auth/dto/request/register.dto';
 import { checkEmailReqDTO } from './dto/request/checkEmailReq.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { LoginDtoRequest } from 'src/auth/dto/request/loginReq.dto';
-import { LoginResDTO } from './dto/response/loginRes.dto';
 import { ValidUserDTO } from 'src/auth/dto/request/Validuser.dto';
 import { verifyReqDTO } from './dto/request/verifyReq.dto';
+import { deleteReqDTO } from './dto/request/deleteReq.dto';
 
 @Injectable()
 export class UsersService {
@@ -66,12 +65,18 @@ export class UsersService {
     return { id: user.id, email: dto.email, name: dto.name };
   }
 
-  async update(dto: verifyReqDTO) {
+  async updateRole(dto: verifyReqDTO) {
     return await this.prismaService.user.update({
       where: { id: dto.userId },
       data: { role: dto.role },
     });
   }
+
+  async delete(dto: deleteReqDTO) {
+    return await this.prismaService.user.delete({where: {id: dto.userId}})
+  }
+
+  // async update(dto: )
 
   async logout() {}
 }

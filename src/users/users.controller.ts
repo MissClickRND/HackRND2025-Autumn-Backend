@@ -1,8 +1,17 @@
-import { Body, Controller, ForbiddenException, Patch, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Patch,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiOperation } from '@nestjs/swagger';
 import { verifyReqDTO } from './dto/request/verifyReq.dto';
 import { JwtCookieAuthGuard } from 'src/jwt/jwt-auth.guard';
+import { deleteReqDTO } from './dto/request/deleteReq.dto';
 
 @Controller('users')
 export class UsersController {
@@ -12,27 +21,25 @@ export class UsersController {
   @UseGuards(JwtCookieAuthGuard)
   @Patch('verify')
   async verify(@Request() req, @Body() dto: verifyReqDTO) {
-    const user = req.user
-    if (user.role == "Admin") {
-        const newRole = await this.userService.update(dto)
-        return {message: "Роль успешно обновлена", newRole}
-    }
-    else {
-        throw new ForbiddenException("Недостаточно прав")
+    const user = req.user;
+    if (user.role == 'Admin') {
+      const newRole = await this.userService.updateRole(dto);
+      return { message: 'Роль успешно обновлена', newRole };
+    } else {
+      throw new ForbiddenException('Недостаточно прав');
     }
   }
 
-@ApiOperation({ summary: 'Верификация' })
+  @ApiOperation({ summary: 'Удаление' })
   @UseGuards(JwtCookieAuthGuard)
-  @Patch('verify')
-  async delete(@Request() req, @Body() dto: verifyReqDTO) {
-    const user = req.user
-    if (user.role == "Admin") {
-        const newRole = await this.userService.update(dto)
-        return {message: "Роль успешно обновлена", newRole}
-    }
-    else {
-        throw new ForbiddenException("Недостаточно прав")
+  @Delete('delete')
+  async delete(@Request() req, @Body() dto: deleteReqDTO) {
+    const user = req.user;
+    if (user.role == 'Admin') {
+      await this.userService.delete(dto);
+      return { message: 'Пользоватеь успешно удален' };
+    } else {
+      throw new ForbiddenException('Недостаточно прав');
     }
   }
 }

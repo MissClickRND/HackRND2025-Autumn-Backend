@@ -1,0 +1,9 @@
+FROM postgres:latest
+
+# Копируем ваш дамп в директорию инициализации
+COPY dump.sql /docker-entrypoint-initdb.d/
+
+# (опционально) можно задать переменные окружения прямо в образе
+ENV POSTGRES_USER=user
+ENV POSTGRES_PASSWORD=password
+ENV POSTGRES_DB=test
