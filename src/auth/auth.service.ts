@@ -3,9 +3,7 @@ import { RegisterDtoRequest } from './dto/request/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
-import { LoginDtoRequest } from './dto/request/loginReq.dto';
-import { LoginResDTO } from 'src/users/dto/response/loginRes.dto';
-import { retry } from 'rxjs';
+import { LoginReqDTO } from 'src/users/dto/request/loginReq.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +18,7 @@ export class AuthService {
     return user;
   }
 
-  async login(dto: LoginResDTO) {
+  async login(dto: LoginReqDTO) {
     const payload = { email: dto.email, sub: dto.id };
     const accessToken = await this.jwtService.sign(payload);
 

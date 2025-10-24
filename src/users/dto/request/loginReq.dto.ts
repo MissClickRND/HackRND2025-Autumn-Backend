@@ -1,8 +1,7 @@
 import { $Enums } from "@prisma/client"
 
-export class LoginResDTO{
+export class LoginReqDTO{
     id: number
     email: string
-    name: string
     system: $Enums.System
 }

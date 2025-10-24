@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDtoRequest } from 'src/auth/dto/request/loginReq.dto';
 import { LoginResDTO } from './dto/response/loginRes.dto';
 import { ValidUserDTO } from 'src/auth/dto/request/Validuser.dto';
+import { verifyReqDTO } from './dto/request/verifyReq.dto';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
       throw new NotFoundException('Пользователь не найден');
     }
     const { password, ...result } = user;
-    return result
+    return result;
   }
 
   async validateUser(dto: ValidUserDTO) {
@@ -59,13 +60,18 @@ export class UsersService {
     const hashpass = await this.hashpassword(dto.password);
 
     const user = await this.prismaService.user.create({
-      data: { email: dto.email, password: hashpass },
+      data: { email: dto.email, password: hashpass, name: dto.name },
     });
 
-    return { id: user.id, email: dto.email };
+    return { id: user.id, email: dto.email, name: dto.name };
   }
 
- async logout(){
-  
- }
+  async update(dto: verifyReqDTO) {
+    return await this.prismaService.user.update({
+      where: { id: dto.userId },
+      data: { role: dto.role },
+    });
+  }
+
+  async logout() {}
 }

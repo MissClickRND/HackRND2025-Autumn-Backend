@@ -1,5 +1,5 @@
 // jwt.strategy.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Strategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
@@ -28,6 +28,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.usersService.GetById(payload.sub);
     if (!user) {
       throw new UnauthorizedException();
+    }
+    if (user.role == "NotVerify") {
+      throw new ForbiddenException("Пользователь не верифицирован")
     }
 
     return user;

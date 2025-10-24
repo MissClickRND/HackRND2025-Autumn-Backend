@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl"]
 }
 
@@ -8,10 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum System {
+  Mobile
+  Web
+}
+
+enum Role {
+  Admin
+  Analyst
+  User
+  NotVerify
+}
+
 model User {
   id       Int            @id @default(autoincrement())
   email    String         @unique
   password String
+  name     String
+  role     Role           @default(NotVerify)
   tokens   RefreshToken[]
 }
 
@@ -24,9 +38,4 @@ model RefreshToken {
   createdAt DateTime @default(now())
   expiresAt DateTime
   revoked   Boolean  @default(false)
-}
-
-enum System {
-  Mobile
-  Web
 }

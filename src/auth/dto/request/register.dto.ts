@@ -11,4 +11,8 @@ export class RegisterDtoRequest {
   @MinLength(8)
   @IsString()
   password: string;
+
+  @ApiProperty()
+  @IsString()
+  name: string;
 }
