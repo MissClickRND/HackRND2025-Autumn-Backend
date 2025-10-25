@@ -1,13 +1,29 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { $Enums } from "@prisma/client"
-import { IsString } from "class-validator"
+import { ApiProperty } from '@nestjs/swagger';
+import { $Enums } from '@prisma/client';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class verifyReqDTO{
-    @ApiProperty()
-    @IsString()
-    userId: number
+export class updateReqDTO {
+  @ApiProperty()
+  @IsString()
+  userId: number;
 
-    @ApiProperty()
-    @IsString()
-    role: $Enums.Role
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  password?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  role?: $Enums.Role;
 }

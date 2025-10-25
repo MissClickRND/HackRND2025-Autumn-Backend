@@ -39,3 +39,67 @@ model RefreshToken {
   expiresAt DateTime
   revoked   Boolean  @default(false)
 }
+
+model Services {
+  id          Int         @id @default(autoincrement())
+  name        String
+  typeId      Int
+  typeService TypeService @relation(fields: [typeId], references: [id])
+}
+
+model TypeService {
+  id       Int        @id @default(autoincrement())
+  name     String
+  Services Services[]
+}
+
+model PaymentType {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Segment {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model Indicator {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model TypeExpenses {
+  id       Int        @id @default(autoincrement())
+  name     String
+  Expenses Expenses[]
+}
+
+model Expenses {
+  id           Int          @id @default(autoincrement())
+  name         String
+  typeId       Int
+  typeExpenses TypeExpenses @relation(fields: [typeId], references: [id])
+}
+
+model Stage {
+  id            Int         @id @default(autoincrement())
+  name          String
+  probabilityId Int
+  probability   Probability @relation(fields: [probabilityId], references: [id])
+}
+
+model Probability {
+  id    Int     @id @default(autoincrement())
+  name  String
+  Stage Stage[]
+}
+
+model StatusRevenue {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model StatusExpences {
+  id   Int    @id @default(autoincrement())
+  name String
+}

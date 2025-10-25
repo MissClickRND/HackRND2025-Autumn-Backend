@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { ValidUserDTO } from 'src/auth/dto/request/Validuser.dto';
 import { verifyReqDTO } from './dto/request/verifyReq.dto';
 import { deleteReqDTO } from './dto/request/deleteReq.dto';
+import { updateReqDTO } from './dto/request/updateReq.dto';
 
 @Injectable()
 export class UsersService {
@@ -73,10 +74,37 @@ export class UsersService {
   }
 
   async delete(dto: deleteReqDTO) {
-    return await this.prismaService.user.delete({where: {id: dto.userId}})
+    return await this.prismaService.user.delete({ where: { id: dto.userId } });
   }
 
-  // async update(dto: )
+  async getAll() {
+    return await this.prismaService.user.findMany({
+      select: { id: true, email: true, name: true, role: true },
+    });
+  }
 
-  async logout() {}
+  async getAllVerify() {
+    return await this.prismaService.user.findMany({
+      where: { role: 'NotVerify' },
+      select: { id: true, email: true, name: true, role: true },
+    });
+  }
+
+  async update(dto: updateReqDTO) {
+    let updateData: any = {
+      email: dto.email,
+      role: dto.role,
+      name: dto.name,
+    };
+
+    if (dto.password) {
+      const hashpass = await this.hashpassword(dto.password);
+      updateData.password = hashpass;
+    }
+
+    return await this.prismaService.user.update({
+      where: { id: dto.userId },
+      data: updateData,
+    });
+  }
 }
