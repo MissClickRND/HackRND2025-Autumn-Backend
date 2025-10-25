@@ -45,6 +45,7 @@ model Services {
   name        String
   typeId      Int
   typeService TypeService @relation(fields: [typeId], references: [id])
+  Project     Project[]
 }
 
 model TypeService {
@@ -54,24 +55,28 @@ model TypeService {
 }
 
 model PaymentType {
-  id   Int    @id @default(autoincrement())
-  name String
+  id      Int       @id @default(autoincrement())
+  name    String
+  Project Project[]
 }
 
 model Segment {
-  id   Int    @id @default(autoincrement())
-  name String
+  id      Int       @id @default(autoincrement())
+  name    String
+  Project Project[]
 }
 
 model Indicator {
-  id   Int    @id @default(autoincrement())
-  name String
+  id      Int       @id @default(autoincrement())
+  name    String
+  Project Project[]
 }
 
 model TypeExpenses {
   id       Int        @id @default(autoincrement())
   name     String
   Expenses Expenses[]
+  Cost     Cost[]
 }
 
 model Expenses {
@@ -86,6 +91,7 @@ model Stage {
   name          String
   probabilityId Int
   probability   Probability @relation(fields: [probabilityId], references: [id])
+  Project       Project[]
 }
 
 model Probability {
@@ -95,11 +101,82 @@ model Probability {
 }
 
 model StatusRevenue {
-  id   Int    @id @default(autoincrement())
-  name String
+  id      Int       @id @default(autoincrement())
+  name    String
+  Revenue Revenue[]
 }
 
-model StatusExpences {
+model StatusExpenses {
   id   Int    @id @default(autoincrement())
   name String
+  Cost Cost[]
+}
+
+model Project {
+  id                       Int         @id @default(autoincrement())
+  organizationName         String      @map("organization_name")
+  inn                      String
+  projectName              String      @map("project_name")
+  serviceId                Int
+  service                  Services    @relation(fields: [serviceId], references: [id])
+  paymentTypeId            Int
+  paymentType              PaymentType @relation(fields: [paymentTypeId], references: [id])
+  stageId                  Int
+  stage                    Stage       @relation(fields: [stageId], references: [id])
+  probability              Float // можно вычислять из stage.probability.name (или числовое значение в Probability)
+  manager                  String
+  segmentId                Int
+  segment                  Segment     @relation(fields: [segmentId], references: [id])
+  implementationYear       Int         @map("implementation_year") // например, 2025
+  industrySolution         Boolean     @default(false) @map("industry_solution")
+  forecastAccepted         Boolean     @default(false) @map("forecast_accepted")
+  implementedViaDzo        Boolean     @default(false) @map("implemented_via_dzo")
+  requiresExecutiveControl Boolean     @default(false) @map("requires_executive_control")
+
+  evaluationStatusId Int?       @map("evaluation_status_id")
+  evaluationStatus   Indicator? @relation(fields: [evaluationStatusId], references: [id])
+  industryManager    String?    @map("industry_manager")
+  projectNumber      String?    @map("project_number")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Связи
+  revenues Revenue[]
+  costs    Cost[]
+  details  ProjectDetails?
+}
+
+model Revenue {
+  id        Int           @id @default(autoincrement())
+  projectId Int
+  project   Project       @relation(fields: [projectId], references: [id])
+  year      Int
+  month     Int
+  amount    Float
+  statusId  Int
+  status    StatusRevenue @relation(fields: [statusId], references: [id])
+}
+
+model Cost {
+  id        Int            @id @default(autoincrement())
+  projectId Int
+  project   Project        @relation(fields: [projectId], references: [id])
+  year      Int
+  month     Int
+  amount    Float
+  typeId    Int
+  type      TypeExpenses   @relation(fields: [typeId], references: [id])
+  statusId  Int
+  status    StatusExpenses @relation(fields: [statusId], references: [id])
+}
+
+model ProjectDetails {
+  id        Int     @id @default(autoincrement())
+  projectId Int     @unique
+  project   Project @relation(fields: [projectId], references: [id])
+
+  currentStatus   String? @db.VarChar(1000)
+  doneThisPeriod  String? @map("done_this_period") @db.VarChar(1000)
+  plansNextPeriod String? @map("plans_next_period") @db.VarChar(1000)
 }

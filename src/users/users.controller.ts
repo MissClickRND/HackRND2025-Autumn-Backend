@@ -69,13 +69,20 @@ export class UsersController {
   @ApiOperation({ summary: 'Обновить пользователя' })
   @UseGuards(JwtCookieAuthGuard)
   @Patch('update')
-  async updateUser(@Request() req, dto: updateReqDTO) {
+  async updateUser(@Request() req, @Body() dto: updateReqDTO) {
     const user = req.user;
     if (user.role == 'Admin') {
       await this.userService.update(dto);
-      return { message: 'Пользоватеь успешно удален' };
+      return { message: 'Пользоватеь успешно обновлен' };
     } else {
       throw new ForbiddenException('Недостаточно прав');
     }
+  }
+
+  @ApiOperation({ summary: 'Получить всех' })
+  @UseGuards(JwtCookieAuthGuard)
+  @Get('allCount')
+  async getAllCount() {
+    return await this.userService.getCount();
   }
 }

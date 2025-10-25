@@ -74,6 +74,9 @@ export class UsersService {
   }
 
   async delete(dto: deleteReqDTO) {
+    await this.prismaService.refreshToken.deleteMany({
+      where: { userId: dto.userId },
+    });
     return await this.prismaService.user.delete({ where: { id: dto.userId } });
   }
 
@@ -90,21 +93,50 @@ export class UsersService {
     });
   }
 
-  async update(dto: updateReqDTO) {
-    let updateData: any = {
-      email: dto.email,
-      role: dto.role,
-      name: dto.name,
-    };
+async update(dto: updateReqDTO) {
+  const { userId, password, ...updateFields } = dto;
 
-    if (dto.password) {
-      const hashpass = await this.hashpassword(dto.password);
-      updateData.password = hashpass;
+  const updateData: any = {};
+  for (const [key, value] of Object.entries(updateFields)) {
+    if (value !== undefined) {
+      updateData[key] = value;
     }
-
-    return await this.prismaService.user.update({
-      where: { id: dto.userId },
-      data: updateData,
-    });
   }
+
+  if (password !== undefined) {
+    updateData.password = await this.hashpassword(password);
+  }
+
+  return await this.prismaService.user.update({
+    where: { id: userId },
+    data: updateData,
+  });
+}
+
+async getCount() {
+  const counts = await this.prismaService.user.groupBy({
+    by: ['role'],
+    _count: { _all: true },
+  });
+
+  const roleColors: Record<string, string> = {
+    Admin: '#7700FF',
+    Analyst: '#749FD6',
+    User: '#CBCBCB',
+    NotVerify: '#FF4F12',
+  };
+
+  const roles = ['Admin', 'Analyst', 'User', 'NotVerify'] as const;
+
+  const result = roles.map((role) => {
+    const found = counts.find((item) => item.role === role);
+    return {
+      name: role,
+      value: found ? found._count._all : 0,
+      color: roleColors[role],
+    };
+  });
+
+  return result;
+}
 }

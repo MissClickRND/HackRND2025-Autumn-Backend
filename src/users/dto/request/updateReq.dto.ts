@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums } from '@prisma/client';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class updateReqDTO {
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   userId: number;
 
   @ApiProperty()

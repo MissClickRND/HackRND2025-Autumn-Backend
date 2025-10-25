@@ -1,10 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { $Enums } from "@prisma/client"
-import { IsString } from "class-validator"
+import { IsNumber, IsString } from "class-validator"
 
 export class verifyReqDTO{
     @ApiProperty()
-    @IsString()
+    @IsNumber()
     userId: number
 
     @ApiProperty()
